@@ -59,10 +59,13 @@ fun getStateChanged(): Observable\<LockDeviceState>
     
 **fun openLockBl(lockId: String)**
 
+где в качестве аргумента передается идентификатор замка  
+
 Передача настроек автоокрытия:
     
 **fun updateLockSettings(lockId: String, settings: LockSettings)**
 
+где в качестве аргумента передаются идентификатор замка и новые настройки
 
 ## Модели данных
 
