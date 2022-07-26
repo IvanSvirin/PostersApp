@@ -25,24 +25,35 @@
 ### 1. Инициализация
 
 Сначала необходимо создать инстанс библиотеки:  
+
 **val sdkInstance = AirKeySmartDeviceCore.getInstance()**
 
 Далее вызвать метод инициализации библиотеки, в который как аргумент передается контекст андроид приложения:  
+
 **sdkInstance.init(context)**
 
 Затем через инстанс можно вызвать любой из методов библиотеки, которые описаны ниже. В частности можно передать
 имя приложения, которое будет отображаться в уведомлении:  
+
 **sdkInstance.addAppName("YourAppName")**
 
 ### 2. Передача в библиотеку набора цифровых ключей для контроллеров
 
+**fun addCryptoKeys(cryptoKeys: List<CryptoKeyDto>)**
+
 ### 3. Получение статусов от контроллеров
 
+**fun locksObservable(): Observable<Collection<Lock>>**
+    
 ### 4. Передача команд для контроллеров
 
-1. **openLock()** - открытие замка 
+Открытие замка:
+    
+**fun openLockBl(lockId: String)**
 
-2. **updateSettings()** - передача настроек 
+Передача настроек автоокрытия:
+    
+**fun updateLockSettings(lockId: String, settings: LockSettings)**
 
 
 ## Модели данных
