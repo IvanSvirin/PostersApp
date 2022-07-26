@@ -39,11 +39,11 @@
 
 ### 2. Передача в библиотеку набора цифровых ключей для контроллеров
 
-**fun addCryptoKeys(cryptoKeys: List<CryptoKeyDto>)**
+**fun addCryptoKeys(cryptoKeys: List\<CryptoKeyDto>)**
 
 ### 3. Получение статусов от контроллеров
 
-**fun locksObservable(): Observable<Collection<Lock>>**
+**fun locksObservable(): Observable\<Collection\<Lock>>**
     
 ### 4. Передача команд для контроллеров
 
