@@ -61,6 +61,7 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
 где в качестве аргумента передается идентификатор замка  
 
+
 Передача настроек автоокрытия:
     
 **fun updateLockSettings(lockId: String, settings: LockSettings)**
