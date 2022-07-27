@@ -82,10 +82,10 @@ fun getStateChanged(): Observable\<LockDeviceState>
         var created: String = "",
     )
 
-data class LockDto(
-    var id: String = "",
-    var transports: TransportDto = TransportDto(),
-)
+    data class LockDto(
+        var id: String = "",
+        var transports: TransportDto = TransportDto(),
+    )
 
 class TransportDto {
     var bluetooth: BluetoothLockTransportDto? = null
