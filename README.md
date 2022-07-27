@@ -52,6 +52,13 @@
 необходимо использовать метод  
 fun getStateChanged(): Observable\<LockDeviceState>  
 класса Lock
+
+    locksObservable().subscribe { locks ->
+                locks.toMutableList()[0].getStateChanged()
+                    .subscribe { state ->
+                        //do smth with state
+                    }
+            }
     
 ### 4. Передача команд для контроллеров
 
