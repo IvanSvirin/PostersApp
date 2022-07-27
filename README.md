@@ -70,7 +70,7 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
 ## Модели данных
 
-data class CryptoKeyDto(
+`data class CryptoKeyDto(
     var id: String = "",
     var title: String = "",
     var lock: LockDto = LockDto(),
@@ -173,11 +173,11 @@ data class RestrictionDto(
 data class PeriodDto(
     var from: String = "",
     var till: String = "",
-)
+)`
 
 ## Contributors
 
-- [Иван Свирин](svirinivanvladimir@gmail.com)
+- [Иван Свирин]()
 
 
 ## License and copyright
