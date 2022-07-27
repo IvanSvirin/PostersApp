@@ -71,15 +71,15 @@ fun getStateChanged(): Observable\<LockDeviceState>
 ## Модели данных
 
     data class CryptoKeyDto(
-    var id: String = "",
-    var title: String = "",
-    var lock: LockDto = LockDto(),
-    var signatureKey: SignatureKeyDto? = null,
-    var accessToken: String = "",
-    var settings: KeySettingsDto = KeySettingsDto(),
-    var usage: UsageDto = UsageDto(),
-    var period: PeriodDto = PeriodDto(),
-    var created: String = "",
+        var id: String = "",
+        var title: String = "",
+        var lock: LockDto = LockDto(),
+        var signatureKey: SignatureKeyDto? = null,
+        var accessToken: String = "",
+        var settings: KeySettingsDto = KeySettingsDto(),
+        var usage: UsageDto = UsageDto(),
+        var period: PeriodDto = PeriodDto(),
+        var created: String = "",
     )
 
 data class LockDto(
