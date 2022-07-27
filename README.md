@@ -80,7 +80,7 @@ fun getStateChanged(): Observable\<LockDeviceState>
     var usage: UsageDto = UsageDto(),
     var period: PeriodDto = PeriodDto(),
     var created: String = "",
-)
+    )
 
 data class LockDto(
     var id: String = "",
