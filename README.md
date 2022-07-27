@@ -73,25 +73,111 @@ fun getStateChanged(): Observable\<LockDeviceState>
 data class CryptoKeyDto(
     var id: String = "",
     var title: String = "",
-    var lockId: String? = "",
     var lock: LockDto = LockDto(),
     var signatureKey: SignatureKeyDto? = null,
-    var signatureKeyV3: SignatureKeyV3Dto? = null,
     var accessToken: String = "",
-    var accessTokenV3: String? = null,
-    var authCookie: Cookie? = null,
     var settings: KeySettingsDto = KeySettingsDto(),
     var usage: UsageDto = UsageDto(),
     var period: PeriodDto = PeriodDto(),
     var created: String = "",
-    var modified: String = "",
-    var compositeKeyId: String = "",
-    var isEncrypted: Boolean = false,
+)
+
+data class LockDto(
+    var id: String = "",
+    var transports: TransportDto = TransportDto(),
+)
+
+class TransportDto {
+    var bluetooth: BluetoothLockTransportDto? = null
+    var bluetoothLe: BluetoothLeLockTransportDto? = null
+
+    enum class TransportsType(var type: Int) {
+        BlueToothLe(1), BlueTooth(2), Unknown(3);
+    }
+
+    companion object {
+        fun getType(type: Any?): TransportsType {
+            for (alg in TransportsType.values()) {
+                if (type is Number && alg.type == type.toInt()) {
+                    return alg
+                } else if (alg.name == type) {
+                    return alg
+                }
+            }
+            throw ArrayIndexOutOfBoundsException("algorithm")
+        }
+    }
+}
+
+open class LockTransportDto {
+    var type: TransportDto.TransportsType = TransportDto.TransportsType.Unknown
+}
+
+data class BluetoothLockTransportDto(
+    var deviceName: String = "",
+    var macAddress: String = "",
+    var secureUuid: String = "",
+    var insecureUuid: String = "",
+) : LockTransportDto()
+
+data class BluetoothLeLockTransportDto(
+    var deviceName: String = "",
+    var macAddress: String = "",
+    var serviceUuid: String = "",
+    var charDataUuid: String = "",
+    var charRssiUuid: String = "",
+) : LockTransportDto()
+
+data class SignatureKeyDto(
+    var salt: String = "",
+    var token: String = "",
+    @SerializedName("algorithm")
+    val algorithm: Any?,
+) {
+    fun getAlgorithm(): AlgorithmDtoType {
+        for (alg in AlgorithmDtoType.values()) {
+            if (algorithm is Number && alg.type == algorithm.toInt()) {
+                return alg
+            } else if (alg.name == algorithm) {
+                return alg
+            }
+        }
+        throw ArrayIndexOutOfBoundsException("algorithm")
+    }
+
+    enum class AlgorithmDtoType(var type: Int) {
+        hmacSha1(1), hmacSha256(2);
+    }
+}
+
+data class KeySettingsDto(
+    var keepDoorOpened: Int = 0,
+    var useMethod1: Boolean = false,
+    var useMethod2: Boolean = false,
+    var activeDistance: Int = 0,
+    var autoOpen: Boolean = false,
+    var autoClose: Boolean = false,
+    var keepOpenedWhileStayingNear: Boolean = false,
+)
+
+data class UsageDto(
+    var restrictions: List<RestrictionDto> = ArrayList<RestrictionDto>()
+)
+
+data class RestrictionDto(
+    var key: String = "",
+    var value: String = "",
+    var type: String = "",
+)
+
+data class PeriodDto(
+    var from: String = "",
+    var till: String = "",
 )
 
 ## Contributors
 
-- [Иван Свирин](https://github.com/ivansvirin)
+- [Иван Свирин](svirinivanvladimir@gmail.com)
 
 
 ## License and copyright
