@@ -208,6 +208,151 @@ fun getStateChanged(): Observable\<LockDeviceState>
         }
     }
 
+    class LockSettings(settings: SmartKeySettingsModel) {
+        var settings: SmartKeySettingsModel
+
+        var activeDistance: Int
+            get() = settings.activeDistance
+            set(activeDistance) {
+                settings.activeDistance = activeDistance
+            }
+
+        val privateModel: SmartKeySettingsModel
+            get() = settings
+        var title: String
+            get() = settings.title
+            set(title) {
+                settings.title = title
+            }
+        val keepDoorOpened: KeepDoorOpenedModel
+            get() = settings.keepDoorOpened
+
+        var autoOpen: Boolean
+            get() = settings.autoOpen
+            set(autoOpen) {
+                settings.autoOpen = autoOpen
+            }
+        var keepOpenedWhileStayingNear: Boolean
+            get() = settings.keepOpenedWhileStayingNear
+            set(keepOpenedWhileStayingNear) {
+                settings.keepOpenedWhileStayingNear = keepOpenedWhileStayingNear
+            }
+        var useGestureMethod2: Boolean
+            get() = settings.useGestureMethod2
+            set(useGestureMethod2) {
+                settings.useGestureMethod2 = useGestureMethod2
+            }
+        var useGestureMethod1: Boolean
+            get() = settings.useGestureMethod1
+            set(useGestureMethod1) {
+                settings.useGestureMethod1 = useGestureMethod1
+            }
+
+        fun setKeepDoorOpened(i: Int) {
+            settings.setKeepDoorOpened(i)
+        }
+
+        init {
+            this.settings = settings
+        }
+    }
+
+    data class KeepDoorOpenedModel(var value: Int) {
+        fun setVal(i: Int) {
+            value = i
+        }
+
+        val valueSec: Int
+            get() = value / 1000
+    }
+
+    class SmartKeySettingsModel(smartKey: CryptoKeyDto) {
+        var keyId: UUID
+        var autoOpen: Boolean
+        var keepOpenedWhileStayingNear: Boolean
+        var title: String
+        private var autoClose: Boolean
+        var useGestureMethod1: Boolean
+        var useGestureMethod2: Boolean
+        var activeDistance: Int
+        private val _keepDoorOpened: KeepDoorOpenedModel
+
+        private fun getAutoOpen(
+            usage: KeyUsageModel,
+            settings: KeySettingsDto
+        ): Boolean {
+            return settings.autoOpen &&
+                    usage.getRestriction(RestrictionModel.Type.AutoOpenEnabled).boolValue
+        }
+
+        private fun getKeepOpened(
+            usage: KeyUsageModel,
+            settings: KeySettingsDto
+        ): Boolean {
+            return settings.keepOpenedWhileStayingNear &&
+                    usage.getRestriction(RestrictionModel.Type.KeepOpenedEnabled).boolValue
+        }
+
+        private fun getActiveDistance(
+            usage: KeyUsageModel,
+            settings: KeySettingsDto
+        ): Int {
+            val maxActiveDistance: Int =
+                usage.getRestriction(RestrictionModel.Type.MaxActiveDistance).intValue
+            val minActiveDistance: Int =
+                usage.getRestriction(RestrictionModel.Type.MinActiveDistance).intValue
+            return if (settings.activeDistance > maxActiveDistance) {
+                maxActiveDistance
+            } else if (settings.activeDistance < minActiveDistance) {
+                minActiveDistance
+            } else {
+                settings.activeDistance
+            }
+        }
+
+        private fun getKeepDoorOpened(
+            usage: KeyUsageModel,
+            settings: KeySettingsDto
+        ): KeepDoorOpenedModel {
+            val maxOpenedTime: Int =
+                usage.getRestriction(RestrictionModel.Type.MaxOpenedTime).timeSpan
+            val minOpenedTime: Int =
+                usage.getRestriction(RestrictionModel.Type.MinOpenedTime).timeSpan
+            val keepDoorOpenedModel: KeepDoorOpenedModel =
+                if (settings.keepDoorOpened > maxOpenedTime) {
+                    KeepDoorOpenedModel(maxOpenedTime)
+                } else if (settings.keepDoorOpened < minOpenedTime) {
+                    KeepDoorOpenedModel(minOpenedTime)
+                } else {
+                    KeepDoorOpenedModel(settings.keepDoorOpened)
+                }
+            return keepDoorOpenedModel
+        }
+
+        fun setKeepDoorOpened(i: Int) {
+            _keepDoorOpened.setVal(i)
+        }
+
+        val keepDoorOpened: KeepDoorOpenedModel
+            get() = _keepDoorOpened
+
+        init {
+            val settings: KeySettingsDto =
+                smartKey.settings
+            val usage =
+                KeyUsageModel(if (smartKey.usage == null) UsageDto() else smartKey.usage)
+            keyId = UUID.fromString(smartKey.id)
+            title = smartKey.title
+            autoOpen = getAutoOpen(usage, settings)
+            keepOpenedWhileStayingNear = getKeepOpened(usage, settings)
+            autoClose = settings.autoClose
+            useGestureMethod1 = settings.useMethod1
+            useGestureMethod2 = settings.useMethod2
+            _keepDoorOpened = getKeepDoorOpened(usage, settings)
+            activeDistance = getActiveDistance(usage, settings)
+        }
+    }
+
 
 ## License and copyright
 Copyright (c) 2022 Airkey
