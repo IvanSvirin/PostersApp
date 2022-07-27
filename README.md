@@ -175,6 +175,40 @@ fun getStateChanged(): Observable\<LockDeviceState>
         var till: String = "",
     )
 
+    class Lock(private var lockDevice: LockDevice) {
+
+        fun getId(): UUID {
+            return lockDevice.getId()
+        }
+
+        fun getStateChanged(): Observable<LockDeviceState> {
+            return lockDevice.getStateChanged()
+        }
+
+        fun getKey(): CryptoKeyModel {
+            return lockDevice.getItsKey()
+        }
+
+        fun getState(): LockDeviceState {
+            return lockDevice.getState()
+        }
+
+        fun getUsage(): LockUsage {
+            return if (lockDevice.getItsKey() == null) {
+                LockUsage()
+            } else LockUsage(lockDevice.getItsKey().getUsage())
+        }
+
+        fun getTitle(): String {
+            return lockDevice.getItsKey().getTitle()
+        }
+
+        fun getSettings(): LockSettings {
+            return LockSettings(lockDevice.getSettings())
+        }
+    }
+
+
 ## Contributors
 
 - [Иван Свирин]()
