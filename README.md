@@ -209,11 +209,6 @@ fun getStateChanged(): Observable\<LockDeviceState>
     }
 
 
-## Contributors
-
-- [Иван Свирин]()
-
-
 ## License and copyright
 Copyright (c) 2022 Airkey
 
