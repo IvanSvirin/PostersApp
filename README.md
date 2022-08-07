@@ -75,6 +75,114 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
 где в качестве аргумента передаются идентификатор замка и новые настройки
 
+## Пример использования
+
+    //инициализация
+    val sdkInstance = AirKeySmartDeviceCore.getInstance()
+    sdkInstance.init(context)
+    sdkInstance.addAppName("YourAppName")
+
+    // создание и добавление цифрового ключа
+    val bluetoothLeLockTransportDto = BluetoothLeLockTransportDto(
+        deviceName = "PZ7ZWRFYAPSFE24",
+        macAddress = "58:63:56:D2:25:CE",
+        serviceUuid = "0bd51666-e7cb-469b-8e4d-2742f1ba77cc",
+        charDataUuid = "e7add780-b042-4876-aae1-112855353cc1",
+        charRssiUuid = "9de0d5aa-d747-4bb1-aa64-c2c5f8ffdfdc",
+    )
+    bluetoothLeLockTransportDto.type = TransportDto.TransportsType.BlueToothLe
+    val transports = TransportDto()
+    transports.bluetoothLe = bluetoothLeLockTransportDto
+    val lockDto = LockDto(
+        id = "BWFSJB7QARDGBJI",
+        transports = transports,
+    )
+    val signatureKeyDto = SignatureKeyDto(
+        salt = "QW5LN291MkN6ckhu",
+        token = "KVZW+3B1fNBXz+1EHYV/g80qyxRnbL0vCdQTcPX9cOw=",
+        algorithm = "hmacSha256",
+    )
+    val keySettingsDto = KeySettingsDto(
+        keepDoorOpened = 4000,
+        useMethod1 = false,
+        useMethod2 = false,
+        activeDistance = 17,
+        autoOpen = true,
+        autoClose = false,
+        keepOpenedWhileStayingNear = true,
+    )
+    val usageDto = UsageDto(
+        listOf(
+            RestrictionDto(
+               key = "AutoOpenEnabled",
+               value = "True",
+               type = "boolean",
+            ),
+            RestrictionDto(
+                key = "KeepOpenedEnabled",
+                value = "True",
+                type = "boolean",
+            ),
+            RestrictionDto(
+                key = "MaxOpenedTime",
+                value = "60000",
+                type = "timeSpan",
+            ),
+            RestrictionDto(
+                key = "MinOpenedTime",
+                value = "3000",
+                type = "timeSpan",
+            ),
+            RestrictionDto(
+                key = "MaxActiveDistance",
+                value = "100",
+                type = "int",
+            ),
+            RestrictionDto(
+                key = "MinActiveDistance",
+                value = "0",
+                type = "int",
+            ),
+        )
+    )
+    val periodDto = PeriodDto(
+        from = "2022-08-01T00:00:00.0000+00:00",
+        till = "2022-09-15T23:59:59.0000+00:00",
+    )
+    val cryptoKeyDto = CryptoKeyDto(
+        id = "9f7b7b0f-d937-4574-8c61-aee400353c45",
+        title = "Тестовый BWFSJB7QARDGBJI",
+        lock = lockDto,
+        signatureKey = signatureKeyDto,
+        accessToken = "CgIIAxIuGiwKDEFuSzdvdTJDenJIbhDbi5T//f////8BGAEggJOKcij/3PxzMgMIHwU4ARogyK9FacVeIkywGB8mnkd4FZFIkP1A9i1zY0qZnKh00Uo=",
+        settings = keySettingsDto,
+        usage = usageDto,
+        period = periodDto,
+        created = "2022-08-01T00:13:49.4577+00:00",
+    )
+    sdkInstance.addCryptoKeys(listOf(cryptoKeyDto))
+
+    // получение статуса замка
+    sdkInstance.locksObservable()
+        .subscribe { locks ->
+            locks.toMutableList()[0].getStateChanged()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { state ->
+                    // do smth with state
+                }
+        }
+
+    // открытие замка
+    sdkInstance.openLockBl(cryptoKeyDto.id)
+
+
+    // обновление настроек замка
+    var settings = LockSettings(SmartKeySettingsModel(cryptoKeyDto))
+    settings.setKeepDoorOpened(10000) // in ms
+    settings.activeDistance = 33
+    sdkInstance.updateLockSettings(cryptoKeyDto.id, settings)
+
+
 ## Модели данных
 
     data class CryptoKeyDto(
