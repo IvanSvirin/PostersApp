@@ -175,7 +175,6 @@ fun getStateChanged(): Observable\<LockDeviceState>
     // открытие замка
     sdkInstance.openLockBl(cryptoKeyDto.id)
 
-
     // обновление настроек замка
     var settings = LockSettings(SmartKeySettingsModel(cryptoKeyDto))
     settings.setKeepDoorOpened(10000) // in ms
@@ -320,6 +319,19 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
         fun getSettings(): LockSettings {
             return LockSettings(lockDevice.getSettings())
+        }
+    }
+
+    enum class LockDeviceState {
+        Opened, Closed, Unavailable, Connecting, Insight, Unauthorized;
+
+        fun oneOf(vararg states: LockDeviceState): Boolean {
+            for (state in states) {
+                if (this == state) {
+                    return true
+                }
+            }
+            return false
         }
     }
 
