@@ -2,11 +2,11 @@
 
 Набор для разработчика SmartAirKey (SmartAirKey SDK) позволяет встроить функциональность взаимодействия с оборудованием SmartAirkey (контроллеры доступа SimpleLock)  в любое приложение.
 
-Взаимодействие с оборудованием SmartAirKey происходит по интерфейсу BLE, в том числе в фоновом режиме.
+Взаимодействие с оборудованием SmartAirKey происходит по интерфейсу Bluetooth Low Energy(BLE), в том числе в фоновом режиме.
 
 Предоставляемая библиотека поддерживает в приложении процесс, который реализует:
 1. Подключение контроллеров по BLЕ. Поддержка жизненного цикла транспорта.
-2. Протокол взаимодействия приложения и контроллера по BLE v2 и v3 (protobuf). Стэйт-машина протокола.
+2. Протокол взаимодействия приложения и контроллера по BLE v2 и v3 (protobuf).
 3. Прием и передача сообщений и команд между телефоном и контроллером. Статусы, команды открытия, настройки контроллера.
 
 Для управления доступом к контроллерам используются цифровые ключи, получаемые с сервера SmartAirKey для каждого пользователя.
@@ -20,7 +20,7 @@
 3. Получение статусов от контроллеров
 4. Передача команд для контроллеров
 
-Контроллеры могут находиться в статусах “Подключен”/”Не подключен”, “Закрыт”/”Открыт”. Если контроллер находится в статусе “Не подключен”, то передача команд не возможна (например, телефон и контроллер находятся вне зоны подключения по BLE).
+Контроллеры могут находиться в статусах ”Не подключен”, ”Подключение”, “Закрыт”/”Открыт”. Если контроллер находится в статусе “Не подключен”, то передача команд невозможна (например, телефон и контроллер находятся вне зоны подключения по BLE).
 
 ### 1. Инициализация
 
@@ -37,13 +37,27 @@
 
 **sdkInstance.addAppName("YourAppName")**
 
+    val sdkInstance = AirKeySmartDeviceCore.getInstance()
+    sdkInstance.init(context)
+    sdkInstance.addAppName("YourAppName")
+
 ### 2. Передача в библиотеку набора цифровых ключей для контроллеров
+
+Следующим шагом необходимо добавить в библиотеку цифровые ключи для контроллеров, которыми предстоит управлять,
+используя данную библиотеку:
 
 **fun addCryptoKeys(cryptoKeys: List\<CryptoKeyDto>)**
 
-(все используемые модели данных приведены в следующем разделе)
+Все используемые модели данных приведены в соответствующем разделе (см. __Пример использования__).
+
+    val cryptoKeyDto = CryptoKeyDto(...)
+    sdkInstance.addCryptoKeys(listOf(cryptoKeyDto))
+
+Подробный пример создания объекта CryptoKeyDto показан в следующем разделе (см. __Модели данных__).
 
 ### 3. Получение статусов от контроллеров
+
+После того как мы передали в библитеку цифровые ключи мы можем подписаться на коллекцию соответствующих им замков:
 
 **fun locksObservable(): Observable\<Collection\<Lock>>**
 
@@ -53,7 +67,7 @@
 fun getStateChanged(): Observable\<LockDeviceState>  
 класса Lock
 
-    locksObservable().subscribe { locks ->
+    sdkInstance.locksObservable().subscribe { locks ->
                 locks.toMutableList()[0].getStateChanged()
                     .subscribe { state ->
                         //do smth with state
@@ -61,6 +75,7 @@ fun getStateChanged(): Observable\<LockDeviceState>
             }
     
 ### 4. Передача команд для контроллеров
+Управляющие команды включают в себя команду открытия замка и команду настроек автоокрытия.
 
 Открытие замка:
     
@@ -69,11 +84,23 @@ fun getStateChanged(): Observable\<LockDeviceState>
 где в качестве аргумента передается идентификатор замка  
 
 
+    sdkInstance.openLockBl(cryptoKeyDto.id)
+
 Передача настроек автоокрытия:
     
 **fun updateLockSettings(lockId: String, settings: LockSettings)**
 
 где в качестве аргумента передаются идентификатор замка и новые настройки
+
+    var settings = LockSettings(SmartKeySettingsModel(cryptoKeyDto))
+    settings.autoOpen = true
+    settings.setKeepDoorOpened(10000) // in ms
+    settings.activeDistance = 33
+    sdkInstance.updateLockSettings(cryptoKeyDto.id, settings)
+
+Настройки автоокрытия включают в себя такие параметры как включение автооткрытия, 
+время нахождение замка в открытом состоянии и дистанцию открытия.
+
 
 ## Пример использования
 
@@ -177,6 +204,7 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
     // обновление настроек замка
     var settings = LockSettings(SmartKeySettingsModel(cryptoKeyDto))
+    settings.autoOpen = true
     settings.setKeepDoorOpened(10000) // in ms
     settings.activeDistance = 33
     sdkInstance.updateLockSettings(cryptoKeyDto.id, settings)
