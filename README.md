@@ -15,14 +15,62 @@
 ## Процесс работы
 
 Процесс работы с библиотекой состоит из следующих операций:
-1. Инициализация 
-2. Передача в библиотеку набора цифровых ключей для контроллеров
-3. Получение статусов от контроллеров
-4. Передача команд для контроллеров
+1. Подготовка приложения 
+2. Инициализация
+3. Передача в библиотеку набора цифровых ключей для контроллеров
+4. Получение статусов от контроллеров
+5. Передача команд для контроллеров
 
 Контроллеры могут находиться в статусах ”Не подключен”, ”Подключение”, “Закрыт”/”Открыт”. Если контроллер находится в статусе “Не подключен”, то передача команд невозможна (например, телефон и контроллер находятся вне зоны подключения по BLE).
 
-### 1. Инициализация
+### 1. Подготовка приложения
+
+Перед началом работы необходимо поместить файл библиотеки bluetoothcomm.aar в папку /lib вашего проекта.
+
+Затем добавить разрешение android.permission.FOREGROUND_SERVICE в файл AndroidManifest.xml вашего проекта
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        package="com.yourapppackagename">
+
+        <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+        <application
+            ...
+        </application>
+
+    </manifest>
+
+И, наконец, добавить следующие зависимости в файл build.gradle, который относится к модулю:
+
+    dependencies {
+        //jetpack
+        implementation 'androidx.core:core-ktx:1.8.0'
+        implementation 'androidx.appcompat:appcompat:1.4.2'
+        implementation 'com.google.android.material:material:1.6.1'
+        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+        implementation 'androidx.preference:preference:1.2.0'
+
+        //lib
+        implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
+
+        //rx
+        implementation "io.reactivex.rxjava2:rxandroid:2.1.1"
+        implementation 'io.reactivex:rxandroid:1.2.1'
+
+        //protocol buffers
+        api "com.squareup.wire:wire-runtime:4.4.0"
+
+        //time format
+        implementation 'joda-time:joda-time:2.10.14'
+
+        //logs
+        implementation 'org.slf4j:slf4j-api:1.7.30'
+    }
+
+
+### 2. Инициализация
 
 Сначала необходимо создать инстанс библиотеки:  
 
@@ -41,7 +89,7 @@
     sdkInstance.init(context)
     sdkInstance.addAppName("YourAppName")
 
-### 2. Передача в библиотеку набора цифровых ключей для контроллеров
+### 3. Передача в библиотеку набора цифровых ключей для контроллеров
 
 Следующим шагом необходимо добавить в библиотеку цифровые ключи для контроллеров, которыми предстоит управлять,
 используя данную библиотеку:
@@ -55,7 +103,7 @@
 
 Подробный пример создания объекта CryptoKeyDto показан в следующем разделе (см. __Пример использования__).
 
-### 3. Получение статусов от контроллеров
+### 4. Получение статусов от контроллеров
 
 После того как мы передали в библитеку цифровые ключи мы можем подписаться на коллекцию соответствующих им замков:
 
@@ -74,7 +122,7 @@ fun getStateChanged(): Observable\<LockDeviceState>
                     }
             }
     
-### 4. Передача команд для контроллеров
+### 5. Передача команд для контроллеров
 Управляющие команды включают в себя команду открытия замка и команду настроек автоокрытия.
 
 Открытие замка:
