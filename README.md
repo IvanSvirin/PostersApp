@@ -123,6 +123,9 @@ fun getStateChanged(): Observable\<LockDeviceState>
                     }
             }
     
+Контроллер замка может иметь следующие статусы:
+Opened, Closed, Unavailable, Connecting, Insight, Unauthorized
+
 ### 5. Передача команд для контроллеров
 Управляющие команды включают в себя команду открытия замка и команду настроек автоокрытия.
 
@@ -134,6 +137,9 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
 
     sdkInstance.openLockBl(cryptoKeyDto.id)
+    
+Открытие замка возможно только тогда, когда контроллер находится в статусе Closed, то есть когда контроллер доступен и с ним установлена связь.
+
 
 Передача настроек автоокрытия:
     
@@ -153,12 +159,22 @@ fun getStateChanged(): Observable\<LockDeviceState>
 
 ## Пример использования
 
-    //инициализация
+Ниже показан подробный пример использования библиотеки, написанный на Kotlin.
+
+    /** ИНИЦИАЛИЗАЦИЯ */
+    
+    //получение инстанса SDK
     val sdkInstance = AirKeySmartDeviceCore.getInstance()
+    
+    //сама инициализация SDK с передачей контекста приложения Android
     sdkInstance.init(context)
+    
+    //добавление имени приложения, которое будет показываться в уведомлениях
     sdkInstance.addAppName("YourAppName")
 
-    // создание и добавление цифрового ключа
+    /** СОЗДАНИЕ И ДОБАВЛЕНИЕ ЦИФРОВОГО КЛЮЧА */
+    
+    //создание транспорта BluetoothLe
     val bluetoothLeLockTransportDto = BluetoothLeLockTransportDto(
         deviceName = "PZ7ZWRFYAPSFE24",
         macAddress = "58:63:56:D2:25:CE",
@@ -169,62 +185,74 @@ fun getStateChanged(): Observable\<LockDeviceState>
     bluetoothLeLockTransportDto.type = TransportDto.TransportsType.BlueToothLe
     val transports = TransportDto()
     transports.bluetoothLe = bluetoothLeLockTransportDto
+    
+    //создание замка
     val lockDto = LockDto(
         id = "BWFSJB7QARDGBJI",
         transports = transports,
     )
+    
+    //создание подписи
     val signatureKeyDto = SignatureKeyDto(
         salt = "QW5LN291MkN6ckhu",
         token = "KVZW+3B1fNBXz+1EHYV/g80qyxRnbL0vCdQTcPX9cOw=",
         algorithm = "hmacSha256",
     )
+    
+    //создание исходных настроек контроллера
     val keySettingsDto = KeySettingsDto(
-        keepDoorOpened = 4000,
+        keepDoorOpened = 4000, //время нахождения в состоянии открытия в мс
         useMethod1 = false,
         useMethod2 = false,
-        activeDistance = 17,
-        autoOpen = true,
-        autoClose = false,
-        keepOpenedWhileStayingNear = true,
+        activeDistance = 17, //дистанция открытия в дБ
+        autoOpen = true, //возможность автооткрытия при приближении к контроллеру замка
+        autoClose = false, //возможность автозакрытия
+        keepOpenedWhileStayingNear = true, //возможность оставлять замок открытым, пока пользователь находится рядом
     )
+    
+    //задание используемых разрешений
     val usageDto = UsageDto(
         listOf(
             RestrictionDto(
-               key = "AutoOpenEnabled",
+               key = "AutoOpenEnabled", //возможность автооткрытия при приближении к контроллеру замка
                value = "True",
                type = "boolean",
             ),
             RestrictionDto(
-                key = "KeepOpenedEnabled",
+                key = "KeepOpenedEnabled", //возможность оставлять замок открытым, пока пользователь находится рядом
                 value = "True",
                 type = "boolean",
             ),
             RestrictionDto(
-                key = "MaxOpenedTime",
+                key = "MaxOpenedTime", //максимальное время нахождения в состоянии открытия в мс
                 value = "60000",
                 type = "timeSpan",
             ),
             RestrictionDto(
-                key = "MinOpenedTime",
+                key = "MinOpenedTime", //минимальное время нахождения в состоянии открытия в мс
                 value = "3000",
                 type = "timeSpan",
             ),
             RestrictionDto(
-                key = "MaxActiveDistance",
+                key = "MaxActiveDistance", //максимальная дистанция открытия в дБ
                 value = "100",
                 type = "int",
             ),
             RestrictionDto(
-                key = "MinActiveDistance",
+                key = "MinActiveDistance", //минимальная дистанция открытия в дБ
                 value = "0",
                 type = "int",
             ),
         )
     )
+    
+    //задание временного интервала действия ключа
     val periodDto = PeriodDto(
         from = "2022-08-01T00:00:00.0000+00:00",
         till = "2022-09-15T23:59:59.0000+00:00",
     )
+    
+    //создание самого ключа
     val cryptoKeyDto = CryptoKeyDto(
         id = "9f7b7b0f-d937-4574-8c61-aee400353c45",
         title = "Тестовый BWFSJB7QARDGBJI",
@@ -236,6 +264,8 @@ fun getStateChanged(): Observable\<LockDeviceState>
         period = periodDto,
         created = "2022-08-01T00:13:49.4577+00:00",
     )
+    
+    //добавление списка ключей в библиотеку
     sdkInstance.addCryptoKeys(listOf(cryptoKeyDto))
 
     // получение статуса замка
@@ -244,18 +274,24 @@ fun getStateChanged(): Observable\<LockDeviceState>
             locks.toMutableList()[0].getStateChanged()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { state ->
-                    // do smth with state
+                    // здесь можно обрабатывать значение статуса state
                 }
         }
 
-    // открытие замка
+    /** ОТКРЫТИЕ ЗАМКА */
     sdkInstance.openLockBl(cryptoKeyDto.id)
 
-    // обновление настроек замка
+    /** ОБНОВЛЕНИЕ НАСТРОЕК ЗАМКА */
+    
+    //создание инстанса настроек
     var settings = LockSettings(SmartKeySettingsModel(cryptoKeyDto))
-    settings.autoOpen = true
-    settings.setKeepDoorOpened(10000) // in ms
-    settings.activeDistance = 33
+    
+    //изменение значений настроек
+    settings.autoOpen = true // разрешить автооткрытие
+    settings.setKeepDoorOpened(10000) //время нахождения в состоянии открытия в мс 
+    settings.activeDistance = 33 //дистанция автооткрытия в дБ
+    
+    //обновление настроек
     sdkInstance.updateLockSettings(cryptoKeyDto.id, settings)
 
 
