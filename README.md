@@ -30,13 +30,20 @@
 
 Затем добавить следующие разрешения:
 
-android.permission.FOREGROUND_SERVICE 
+android.permission.FOREGROUND_SERVICE
+
 android.permission.BLUETOOTH
+
 android.permission.BLUETOOTH_ADMIN
+
 android.permission.BLUETOOTH_CONNECT
+
 android.permission.BLUETOOTH_ADVERTISE
+
 android.permission.BLUETOOTH_SCAN
+
 android.permission.ACCESS_FINE_LOCATION
+
 android.permission.ACCESS_COARSE_LOCATION
 
 в файл AndroidManifest.xml вашего проекта
