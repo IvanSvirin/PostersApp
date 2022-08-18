@@ -28,7 +28,18 @@
 
 Перед началом работы необходимо поместить файл библиотеки bluetoothcomm.aar в папку /libs вашего проекта.
 
-Затем добавить разрешение android.permission.FOREGROUND_SERVICE в файл AndroidManifest.xml вашего проекта
+Затем добавить следующие разрешения:
+
+android.permission.FOREGROUND_SERVICE 
+android.permission.BLUETOOTH
+android.permission.BLUETOOTH_ADMIN
+android.permission.BLUETOOTH_CONNECT
+android.permission.BLUETOOTH_ADVERTISE
+android.permission.BLUETOOTH_SCAN
+android.permission.ACCESS_FINE_LOCATION
+android.permission.ACCESS_COARSE_LOCATION
+
+в файл AndroidManifest.xml вашего проекта
 
     <?xml version="1.0" encoding="utf-8"?>
     <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -36,12 +47,43 @@
         package="com.yourapppackagename">
 
         <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
+        <uses-permission android:name="android.permission.BLUETOOTH" />
+        <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+        <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+        <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+        <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+        <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+        
         <application
             ...
         </application>
 
     </manifest>
+
+Затем запросить эти разрешения у пользователя:
+
+        val INIT_PERMISSIONS_REQUESTS = 1
+
+        val initPermissions = arrayOf(
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_PRIVILEGED,
+            Manifest.permission.BLUETOOTH_ADMIN,
+            Manifest.permission.BLUETOOTH_ADVERTISE,
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        )
+
+        fun requestInitPermissions(activity: Activity) {
+            ActivityCompat.requestPermissions(
+                activity,
+                initPermissions,
+                INIT_PERMISSIONS_REQUESTS
+            )
+        }
+    
 
 И, наконец, добавить следующие зависимости в файл build.gradle, который относится к модулю:
 
