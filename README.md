@@ -279,7 +279,7 @@ Opened, Closed, Unavailable, Connecting, Insight, Unauthorized
         }
 
     /** ОТКРЫТИЕ ЗАМКА */
-    sdkInstance.openLockBl(cryptoKeyDto.id)
+    sdkInstance.openLockBl(cryptoKeyDto.id) // контроллер должен быть в статусе Closed
 
     /** ОБНОВЛЕНИЕ НАСТРОЕК ЗАМКА */
     
