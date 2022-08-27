@@ -231,7 +231,7 @@ Opened, Closed, Unavailable, Connecting, Insight, Unauthorized
         charDataUuid = "e7add780-b042-4876-aae1-112855353cc1",
         charRssiUuid = "9de0d5aa-d747-4bb1-aa64-c2c5f8ffdfdc",
     )
-    bluetoothLeLockTransportDto.type = TransportDto.TransportsType.BlueToothLe
+    bluetoothLeLockTransportDto.type = TransportDto.TransportsType.blueToothLe
     val transports = TransportDto()
     transports.bluetoothLe = bluetoothLeLockTransportDto
     
@@ -343,6 +343,42 @@ Opened, Closed, Unavailable, Connecting, Insight, Unauthorized
     //обновление настроек
     sdkInstance.updateLockSettings(cryptoKeyDto.id, settings)
 
+    /** ПОЛУЧЕНИЕ КЛЮЧЕЙ С СЕРВЕРА */
+    
+    // получение ключей с /api/mobile?Action=GetUserProfileV2
+    val gsonBuilder = GsonBuilder()
+    gsonBuilder.registerTypeAdapter(TransportDto::class.java, TransportDto().Deserializer())
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://apidev.smartairkey.com/")
+        .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
+        .build()
+
+    val service: ProfileService = retrofit.create(ProfileService::class.java)
+    val today = Calendar.getInstance()
+    val timestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(today.time)
+    val call: Call<UserProfileDto> = service.getProfile(
+        "GetUserProfileV2",
+        "SAS-TOKEN 0C322FD1044E4C909FB52AED42DEAEFA:KkbvMBwiKhUyN1zCFV46hIhJ9Exsjpiq",
+        timestamp
+    )
+    val response = call.execute()
+    if (response.isSuccessful) {
+        val cryptoKeys = response.body()?.cryptoKeys
+        sdkInstance.addCryptoKeys(cryptoKeys!!)
+    }
+    
+    class UserProfileDto {
+    var cryptoKeys: List<CryptoKeyDto> = ArrayList()
+    }
+
+    interface ProfileService {
+        @GET("api/mobile")
+        fun getProfile(
+            @Query("Action") action: String,
+            @Header("Authorization") authorization: String,
+            @Header("Timestamp") timestamp: String
+        ): Call<UserProfileDto>
+    }
 
 ## Модели данных
 
@@ -368,7 +404,7 @@ Opened, Closed, Unavailable, Connecting, Insight, Unauthorized
         var bluetoothLe: BluetoothLeLockTransportDto? = null
 
         enum class TransportsType(var type: Int) {
-            BlueToothLe(1), BlueTooth(2), Unknown(3);
+            blueToothLe(1), blueTooth(2), unknown(3);
         }
 
         companion object {
