@@ -46,6 +46,8 @@ android.permission.ACCESS_FINE_LOCATION
 
 android.permission.ACCESS_COARSE_LOCATION
 
+android.permission.INTERNET
+
 в файл AndroidManifest.xml вашего проекта
 
     <?xml version="1.0" encoding="utf-8"?>
@@ -61,7 +63,7 @@ android.permission.ACCESS_COARSE_LOCATION
         <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
         <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
         <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-        
+        <uses-permission android:name="android.permission.INTERNET" />
         <application
             ...
         </application>
@@ -81,6 +83,7 @@ android.permission.ACCESS_COARSE_LOCATION
             Manifest.permission.BLUETOOTH_SCAN,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.INTERNET,
         )
 
         fun requestInitPermissions(activity: Activity) {
@@ -115,6 +118,10 @@ android.permission.ACCESS_COARSE_LOCATION
         //time format
         implementation 'joda-time:joda-time:2.10.14'
 
+        //retrofit
+        implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+        implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+        
         //logs
         implementation 'org.slf4j:slf4j-api:1.7.30'
     }
